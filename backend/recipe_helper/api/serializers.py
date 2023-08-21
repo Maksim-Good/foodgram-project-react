@@ -1,24 +1,13 @@
-import base64
-
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers, validators
 from users.models import Subscribe, User
 
-from .utils import add_ingredients
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
+from .utils import add_ingredients, is_int_and_more_than_zero
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous or (user == obj):
             return False
-        return user.subscrubing.filter(user=obj).exists()
+        return user.subscriber.filter(user=obj).exists()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -82,7 +71,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_ingredients(self, obj):
         ingredients = obj.ingredients.values()
         for ingredient in ingredients:
-            amount = RecipeIngredient.objects.get(
+            amount = get_object_or_404(
+                RecipeIngredient,
                 ingredient=ingredient['id'],
                 recipe=obj
             ).amount
@@ -91,15 +81,14 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.favorites.filter(recipe=obj).exists()
+        return user.is_anonymous or user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.shopping_cart.filter(recipe=obj).exists()
+        return (
+            user.is_anonymous
+            or user.shopping_cart.filter(recipe=obj).exists()
+        )
 
 
 class CreateRecipeSerializer(RecipeSerializer):
@@ -122,8 +111,7 @@ class CreateRecipeSerializer(RecipeSerializer):
 
     def validate(self, attrs):
         cooking_time = self.initial_data.get('cooking_time')
-        if cooking_time <= 0:
-            raise ValidationError('Время готовки должно быть больше 0!')
+        is_int_and_more_than_zero(cooking_time, 'время готовки')
         ingredients = self.initial_data.get('ingredients')
         tags = self.initial_data.get('tags')
         if not ingredients or not tags:
@@ -131,14 +119,14 @@ class CreateRecipeSerializer(RecipeSerializer):
         for ingr in ingredients:
             if not Ingredient.objects.filter(id=ingr['id']).exists():
                 raise ValidationError('Несуществующий ингредиент.')
-            if ingr['amount'] <= 0:
-                raise ValidationError('Количество меньше 0 недопустимо!')
+            is_int_and_more_than_zero(ingr['amount'], 'количество ингридиента')
         for tag in tags:
             if not Tag.objects.filter(id=tag).exists:
                 raise ValidationError('Несуществующий тег.')
         attrs['ingredients'] = ingredients
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
         author = self.context.get('request').user
         tags = validated_data.pop('tags')
@@ -148,6 +136,7 @@ class CreateRecipeSerializer(RecipeSerializer):
         add_ingredients(ingredients, recipe)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.tags.clear()
         tags = validated_data.pop('tags')
@@ -257,7 +246,10 @@ class UserSubsListSerializer(UserSerializer):
         return ShortRecipeSerializer(obj.recipes.all(), many=True).data
 
     def get_is_subscribed(self, obj):
-        return True
+        request = self.context.get('request')
+        if request and not request.user.is_anonymous:
+            return request.user.subscrubing.filter(user=obj).exists()
+        return False
 
     def get_recipes_count(self, obj):
         return obj.recipes.all().count()

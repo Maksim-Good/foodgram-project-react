@@ -1,5 +1,9 @@
+from colorfield.fields import ColorField
+from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
+
+from .constants import SMALL_TEXT_AMOUNT
 
 
 class Ingredient(models.Model):
@@ -24,17 +28,13 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=SMALL_TEXT_AMOUNT,
         verbose_name='Имя тэга.',
         help_text='Здесь нужно задать имя тэга.'
     )
-    color = models.CharField(
-        max_length=7,
-        verbose_name='Цвет тэга в HEX.',
-        help_text='Здесь нужно задать цвет тэга в HEX.'
-    )
+    color = ColorField(default='#FF0000')
     slug = models.SlugField(
-        max_length=200,
+        max_length=SMALL_TEXT_AMOUNT,
         unique=True,
         verbose_name='Слаг тэга',
         help_text='Здесь нужно задать уникальный слаг тэга.',
@@ -79,7 +79,7 @@ class Recipe(models.Model):
         help_text='Здесь нужно добавить изображение.',
     )
     name = models.CharField(
-        max_length=200,
+        max_length=SMALL_TEXT_AMOUNT,
         verbose_name='Название рецепта.',
         help_text='Здесь нужно ввести название рецепта.',
     )
@@ -88,6 +88,10 @@ class Recipe(models.Model):
         help_text='Здесь нужно ввести текст рецепта.',
     )
     cooking_time = models.PositiveIntegerField(
+        validators=[MinValueValidator(
+            limit_value=1,
+            message='Готовить меньше минуты - значит есть сырым!'
+        )],
         verbose_name='Время приготовления.',
         help_text='Здесь нужно ввести время приготовления.',
     )
@@ -119,6 +123,9 @@ class RecipeIngredient(models.Model):
         verbose_name='Ингредиенты.',
     )
     amount = models.PositiveIntegerField(
+        validators=[MinValueValidator(
+            limit_value=1, message='Количество должно быть больше 0.'
+        )],
         verbose_name='Количество ингредиента.',
     )
 

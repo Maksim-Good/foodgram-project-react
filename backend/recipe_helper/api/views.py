@@ -18,13 +18,14 @@ from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           ShoppingCartSerializer, TagSerializer,
                           UserSerializer, UserSubsCreateSerializer,
                           UserSubsListSerializer)
-from .utils import create_object, delete_object
+from .utils import create_object, create_wishlist, delete_object
 
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = (AuthorOrReadOnly, )
 
     @action(
         detail=False,
@@ -123,12 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        wishlist = ['Список покупок: \n']
-        for ingredient in ingredients:
-            name = ingredient.get('ingredient__name')
-            unit = ingredient.get('ingredient__measurement_unit')
-            amount = ingredient.get('amount')
-            wishlist.append(f'\n{name} - {amount}, {unit}')
+        wishlist = create_wishlist(ingredients)
         response = HttpResponse(wishlist, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename="wishlist.txt"'
         return response

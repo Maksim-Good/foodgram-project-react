@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from recipes.models import Ingredient, RecipeIngredient
 from rest_framework import status
@@ -37,3 +38,22 @@ def delete_object(model_name, request, recipe, error_message):
         )
     model_name.objects.filter(user=request.user, recipe=recipe).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def is_int_and_more_than_zero(obj, name):
+    try:
+        number = int(obj)
+    except ValueError:
+        raise ValidationError(f'Введите число в поле {name}!')
+    if number <= 0:
+        raise ValidationError('Введите число больше 0!')
+
+
+def create_wishlist(ingredients):
+    wishlist = ['Список покупок: \n']
+    for ingredient in ingredients:
+        name = ingredient.get('ingredient__name')
+        unit = ingredient.get('ingredient__measurement_unit')
+        amount = ingredient.get('amount')
+        wishlist.append(f'\n{name} - {amount}, {unit}')
+    return wishlist
