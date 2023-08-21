@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 COPY recipe_helper/ .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "recipe_helper.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "recipe_helper.wsgi"]
