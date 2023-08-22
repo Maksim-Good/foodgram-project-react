@@ -41,19 +41,21 @@ admin_pass = adminadmin
 
 1. Настроить порт внешнего нгинкса 
 - sudo nano /etc/nginx/sites-enabled/default
-- вставить     
-'''
-server {
-    server_name <ваш айпи> <ваш домен>;
+- вставить:
 
-    server_tokens off;
+`
 
-    location / {
-        proxy_set_header Host $http_host;
-        proxy_pass http://127.0.0.1:8080;
+    server {
+        server_name <ваш айпи> <ваш домен>;'
+        
+        server_tokens off;
+        location / {
+            proxy_set_header Host $http_host;
+            proxy_pass http://127.0.0.1:8080;
+        }
     }
-}
-'''
+
+
 2. повторить все тоже что при локальном развертывании
 
 
