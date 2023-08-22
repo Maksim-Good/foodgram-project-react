@@ -46,7 +46,7 @@ admin_pass = adminadmin
 `
 
     server {
-        server_name <ваш айпи> <ваш домен>;'
+        server_name <ваш айпи> <ваш домен>;
         
         server_tokens off;
         location / {
