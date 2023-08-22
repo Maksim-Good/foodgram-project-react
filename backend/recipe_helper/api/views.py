@@ -6,12 +6,12 @@ from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.models import Subscribe, User
 
 from .filters import IngredientFilter, RecipeFilter
+from .pagination import LimitPageNumberPagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           IngredientSerializer, RecipeSerializer,
@@ -24,7 +24,7 @@ from .utils import create_object, create_wishlist, delete_object
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = LimitPageNumberPagination
     permission_classes = (AuthorOrReadOnly, )
 
     @action(
@@ -90,7 +90,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     create_serializer_class = CreateRecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
-    pagination_class = LimitOffsetPagination
+    pagination_class = LimitPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
