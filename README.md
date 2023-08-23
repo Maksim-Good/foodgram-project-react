@@ -1,8 +1,8 @@
 # Фудграм
 
-https://maksgramm.myftp.org/
-admin_login = admin@admin.re
-admin_pass = adminadmin
+- https://maksgramm.myftp.org/
+- admin_login = admin@admin.re
+- admin_pass = adminadmin
 
 ## Описание:
 
@@ -61,4 +61,3 @@ admin_pass = adminadmin
 
 ## Авторы бекенда:
 Максим
-
