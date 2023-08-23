@@ -118,12 +118,13 @@ class CreateRecipeSerializer(RecipeSerializer):
             raise ValidationError('Неполные данные.')
         ingrs = []
         for ingr in ingredients:
-            if not Ingredient.objects.filter(id=ingr['id']).exists():
+            ingr_id = ingr['id']
+            if not Ingredient.objects.filter(id=ingr_id).exists():
                 raise ValidationError('Несуществующий ингредиент.')
             is_int_and_more_than_zero(ingr['amount'], 'количество ингридиента')
-            if ingr['id'] in ingrs:
+            if ingr_id in ingrs:
                 raise ValidationError('Нельзя добавлять один элемент дважды!')
-            ingrs.append(ingr['id'])
+            ingrs.append(ingr_id)
         for tag in tags:
             if not Tag.objects.filter(id=tag).exists:
                 raise ValidationError('Несуществующий тег.')
