@@ -121,9 +121,9 @@ class CreateRecipeSerializer(RecipeSerializer):
             if not Ingredient.objects.filter(id=ingr['id']).exists():
                 raise ValidationError('Несуществующий ингредиент.')
             is_int_and_more_than_zero(ingr['amount'], 'количество ингридиента')
-            if ingr in ingrs:
+            if ingr['id'] in ingrs:
                 raise ValidationError('Нельзя добавлять один элемент дважды!')
-            ingrs.append(ingr)
+            ingrs.append(ingr['id'])
         for tag in tags:
             if not Tag.objects.filter(id=tag).exists:
                 raise ValidationError('Несуществующий тег.')
