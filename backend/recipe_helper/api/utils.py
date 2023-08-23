@@ -49,7 +49,7 @@ def is_int_and_more_than_zero(obj, name):
         raise ValidationError('Введите число больше 0!')
 
 
-def create_wishlist(ingredients):
+def create_shoppinglist(ingredients):
     wishlist = ['Список покупок: \n']
     for ingredient in ingredients:
         name = ingredient.get('ingredient__name')

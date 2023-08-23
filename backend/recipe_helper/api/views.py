@@ -18,7 +18,7 @@ from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           ShoppingCartSerializer, TagSerializer,
                           UserSerializer, UserSubsCreateSerializer,
                           UserSubsListSerializer)
-from .utils import create_object, create_wishlist, delete_object
+from .utils import create_object, create_shoppinglist, delete_object
 
 
 class CustomUserViewSet(UserViewSet):
@@ -124,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        wishlist = create_wishlist(ingredients)
+        wishlist = create_shoppinglist(ingredients)
         response = HttpResponse(wishlist, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename="wishlist.txt"'
         return response
