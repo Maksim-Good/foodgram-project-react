@@ -20,11 +20,13 @@ class Subscribe(models.Model):
         User,
         related_name='subscriber',
         on_delete=models.CASCADE,
+        verbose_name='Подписчик',
     )
     subscrubing = models.ForeignKey(
         User,
         related_name='subscrubing',
         on_delete=models.CASCADE,
+        verbose_name='Автор',
     )
 
     class Meta:
@@ -37,3 +39,8 @@ class Subscribe(models.Model):
                 check=~models.Q(user=models.F('subscrubing')),
             ),
         ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.subscrubing}'

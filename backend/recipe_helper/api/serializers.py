@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous or (user == obj):
             return False
-        return user.subscriber.filter(user=obj).exists()
+        return user.subscriber.filter(subscrubing=obj).exists()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -253,7 +253,7 @@ class UserSubsListSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and not request.user.is_anonymous:
-            return request.user.subscrubing.filter(user=obj).exists()
+            return request.user.subscriber.filter(subscrubing=obj).exists()
         return False
 
     def get_recipes_count(self, obj):
