@@ -11,7 +11,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 @admin.register(Subscribe)
-class UserAdmin(admin.ModelAdmin):
+class SubscribeAdmin(admin.ModelAdmin):
     list_display = ('user', 'subscrubing')
     search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
