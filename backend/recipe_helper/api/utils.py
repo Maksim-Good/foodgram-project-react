@@ -63,6 +63,6 @@ def safety_input(text):
     trans_table = {
         ord('<'): None, ord('>'): None, ord('&'): None, ord('/'): None,
         ord('['): None, ord(']'): None, ord('{'): None, ord('}'): None,
-        ord(''): None, ord('"'): None, ord('`'): None, ord(';'): None,
+        ord('"'): None, ord('`'): None, ord(';'): None,
     }
     return text.translate(trans_table)
