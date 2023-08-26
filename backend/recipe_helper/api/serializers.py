@@ -7,7 +7,7 @@ from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
 from rest_framework import serializers, validators
 from users.models import Subscribe, User
 
-from .utils import add_ingredients, is_int_and_more_than_zero
+from .utils import add_ingredients, is_int_and_more_than_zero, safety_input
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -129,6 +129,8 @@ class CreateRecipeSerializer(RecipeSerializer):
             if not Tag.objects.filter(id=tag).exists:
                 raise ValidationError('Несуществующий тег.')
         attrs['ingredients'] = ingredients
+        attrs['name'] = safety_input(attrs['name'])
+        attrs['text'] = safety_input(attrs['text'])
         return attrs
 
     @transaction.atomic

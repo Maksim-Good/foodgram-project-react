@@ -18,7 +18,8 @@ from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           ShoppingCartSerializer, TagSerializer,
                           UserSerializer, UserSubsCreateSerializer,
                           UserSubsListSerializer)
-from .utils import create_object, create_shoppinglist, delete_object
+from .utils import (create_object, create_shoppinglist, delete_object,
+                    safety_input)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -26,6 +27,19 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = UserSerializer
     pagination_class = LimitPageNumberPagination
     permission_classes = (AuthorOrReadOnly, )
+
+    def perform_create(self, serializer):
+        serializer.validated_data['last_name'] = safety_input(
+            serializer.validated_data.get('last_name')
+        )
+        serializer.validated_data['username'] = safety_input(
+            serializer.validated_data.get('username')
+        )
+        serializer.validated_data['first_name'] = safety_input(
+            serializer.validated_data.get('first_name')
+        )
+        serializer.save()
+        return serializer.validated_data
 
     @action(
         detail=False,

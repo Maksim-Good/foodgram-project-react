@@ -57,3 +57,12 @@ def create_shoppinglist(ingredients):
         amount = ingredient.get('amount')
         wishlist.append(f'\n{name} - {amount}, {unit}')
     return wishlist
+
+
+def safety_input(text):
+    trans_table = {
+        ord('<'): None, ord('>'): None, ord('&'): None, ord('/'): None,
+        ord('['): None, ord(']'): None, ord('{'): None, ord('}'): None,
+        ord(''): None, ord('"'): None, ord('`'): None, ord(';'): None,
+    }
+    return text.translate(trans_table)
